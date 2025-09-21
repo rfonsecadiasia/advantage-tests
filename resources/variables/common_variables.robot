@@ -1,2 +1,2 @@
 *** Variables ***
-${BASE_URL} https://fakestoreapi.com
+${BASE_URL} https://api.storerestapi.com
