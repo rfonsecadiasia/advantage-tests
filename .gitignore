@@ -1,5 +1,11 @@
 __pycache__/
 *.pyc
-.output/
-log.html
+*.log
+*.db
+output.xml
 report.html
+log.html
+*.zip
+.env
+.idea/
+.vscode/
