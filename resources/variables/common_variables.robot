@@ -1,2 +1,3 @@
 *** Variables ***
-${BASE_URL} https://api.storerestapi.com
+${BASE_URL} https://www.advantageonlineshopping.com/catalog/api/v1
+
