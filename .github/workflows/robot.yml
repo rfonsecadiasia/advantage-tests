@@ -26,26 +26,30 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-- name: Instalar navegador e driver (Chrome + ChromeDriver)
-  run: |
-    sudo apt update
-    sudo apt install -y wget unzip curl gnupg
-    # Instalar o Chrome estável
-    wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo gpg --dearmor -o /usr/share/keyrings/google-linux-signing-keyring.gpg
-    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-linux-signing-keyring.gpg] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
-    sudo apt update
-    sudo apt install -y google-chrome-stable
+      - name: Instalar navegador e driver (Chrome + ChromeDriver)
+        shell: bash
+        run: |
+          sudo apt update
+          sudo apt install -y wget unzip curl gnupg jq
 
-    # Pegar a versão do Chrome instalada
-    CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+')
-    # Baixar o ChromeDriver correspondente
-    DRIVER_VERSION=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json" | jq -r --arg VER "$CHROME_VERSION" '.channels.Stable.version')
-    DRIVER_URL=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json" | jq -r --arg VER "$DRIVER_VERSION" '.channels.Stable.downloads.chromedriver[] | select(.platform=="linux64") | .url')
-    wget "$DRIVER_URL" -O chromedriver.zip
-    unzip chromedriver.zip
-    sudo mv chromedriver-linux64/chromedriver /usr/local/bin/
-    sudo chmod +x /usr/local/bin/chromedriver
+          # Instalar o Chrome estável
+          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo gpg --dearmor -o /usr/share/keyrings/google-linux-signing-keyring.gpg
+          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-linux-signing-keyring.gpg] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+          sudo apt update
+          sudo apt install -y google-chrome-stable
 
+          # Verificar versão do Chrome instalada
+          CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+')
+
+          # Obter a última versão do ChromeDriver compatível
+          DRIVER_VERSION=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json" | jq -r '.channels.Stable.version')
+          DRIVER_URL=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json" | jq -r '.channels.Stable.downloads.chromedriver[] | select(.platform=="linux64") | .url')
+
+          # Baixar e instalar o ChromeDriver
+          wget "$DRIVER_URL" -O chromedriver.zip
+          unzip chromedriver.zip
+          sudo mv chromedriver-linux64/chromedriver /usr/local/bin/
+          sudo chmod +x /usr/local/bin/chromedriver
 
       - name: Executar testes Robot (Web + API)
         run: |
